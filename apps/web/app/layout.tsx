@@ -60,7 +60,9 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
 
                 <div className="relative flex min-h-screen flex-col">
                   <Header />
-                  <div className="flex-1">{children}</div>
+                  <main className="flex flex-col items-center min-h-full mx-6 mt-8 mb-12 h-fit">
+                    {children}
+                  </main>
                 </div>
               </ReactQueryProvider>
             </SessionProviderWrapper>
