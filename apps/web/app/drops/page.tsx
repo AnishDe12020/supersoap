@@ -18,7 +18,7 @@ const drops = [
   },
 ]
 
-const DashboardPage = async () => {
+const DropsPage = async () => {
   const session = await getServerSession(authOptions as any)
 
   return (
@@ -34,4 +34,4 @@ const DashboardPage = async () => {
   )
 }
 
-export default DashboardPage
+export default DropsPage
