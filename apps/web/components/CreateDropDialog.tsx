@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useSession } from "next-auth/react"
 import Dropzone, { FileRejection } from "react-dropzone"
-import { useForm } from "react-hook-form"
+import { set, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -41,6 +41,10 @@ export const createDropFormSchema = z.object({
   dropName: z.string(),
   dropDescription: z.string().optional(),
   dropSize: z.number().min(1),
+  externalUrl: z
+    .string()
+    .regex(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)
+    .optional(),
   network: z.enum(["devnet"]),
   image: z.instanceof(File),
 })
@@ -63,28 +67,30 @@ const CreateDropDialog = () => {
     },
   })
 
-  const [isCreatingLink, setIsCreatingLink] = useState(false)
+  const [isCreatingDrop, setIsCreatingDrop] = useState(false)
 
   const onSubmit = form.handleSubmit(async (data) => {
     console.log(data)
 
-    setIsCreatingLink(true)
+    setIsCreatingDrop(true)
 
     if (!wallet.publicKey) {
       console.error("public key is not defined")
       return
     }
+
+    setIsCreatingDrop(false)
   })
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>Create new link</Button>
+        <Button>Create new drop</Button>
       </DialogTrigger>
 
       <DialogContent className="overflow-y-auto h-[32rem]">
         <DialogHeader>
-          <DialogTitle>Create Project</DialogTitle>
+          <DialogTitle>Create Drop</DialogTitle>
           <DialogDescription>
             Create a new compressed NFT Drop
           </DialogDescription>
@@ -147,11 +153,30 @@ const CreateDropDialog = () => {
 
             <FormField
               control={form.control}
+              name="externalUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>External URL</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Optional external URL that will be displayed on your drop
+                    page
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="network"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Network</FormLabel>
                   <FormControl>
+                    {/* @ts-ignore */}
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select network" />
@@ -221,8 +246,9 @@ const CreateDropDialog = () => {
                 </FormItem>
               )}
             />
+
             <DialogFooter className="mt-6">
-              <Button type="submit" isLoading={isCreatingLink}>
+              <Button type="submit" isLoading={isCreatingDrop}>
                 Create Drop
               </Button>
             </DialogFooter>
