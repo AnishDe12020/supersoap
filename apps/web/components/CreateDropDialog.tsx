@@ -1,8 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { calculateClosestTreeDepth } from "@/utils/compression"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useWallet } from "@solana/wallet-adapter-react"
+import { getConcurrentMerkleTreeAccountSize } from "@solana/spl-account-compression"
+import { useConnection, useWallet } from "@solana/wallet-adapter-react"
+import {
+  Connection,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js"
 import { useSession } from "next-auth/react"
 import Dropzone, { FileRejection } from "react-dropzone"
 import { useForm } from "react-hook-form"
@@ -55,10 +64,13 @@ const MAX_FILE_SIZE = 5_24_49_280
 
 const CreateDropDialog = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const [estimatedCost, setEstimatedCost] = useState(0)
 
   const { data: user } = useSession()
 
   const { publicKey } = useWallet()
+
+  const { connection: mainConnection } = useConnection()
 
   const wallet = useWallet()
 
@@ -81,8 +93,91 @@ const CreateDropDialog = () => {
       return
     }
 
+    const depth = calculateClosestTreeDepth(data.dropSize)
+
+    const requiredSpace = getConcurrentMerkleTreeAccountSize(
+      depth.sizePair.maxDepth,
+      depth.sizePair.maxBufferSize,
+      depth.canopyDepth
+    )
+
+    const connection = new Connection(
+      data.network === "devnet"
+        ? "https://api.devnet.solana.com"
+        : process.env.NEXT_PUBLIC_MAINNET_RPC!
+    )
+
+    const estimatedCostForTree =
+      (await connection.getMinimumBalanceForRentExemption(requiredSpace)) /
+      LAMPORTS_PER_SOL
+    const txCost = data.dropSize * 0.000005
+    const totalWithoutPadding = estimatedCostForTree + txCost
+    const padding = totalWithoutPadding * 0.05
+    const totalCost = totalWithoutPadding + padding
+
+    const transferIx = SystemProgram.transfer({
+      fromPubkey: wallet.publicKey,
+      toPubkey: new PublicKey(process.env.NEXT_PUBLIC_VAULT_PUBLIC_KEY!),
+      lamports: Math.ceil(totalCost * LAMPORTS_PER_SOL),
+    })
+
+    const transferTx = new Transaction().add(transferIx)
+
+    const latestBlockhash = await connection.getLatestBlockhash()
+
+    const depositSig = await wallet.sendTransaction(transferTx, connection)
+
+    await connection.confirmTransaction(
+      {
+        signature: depositSig,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+      },
+      "processed"
+    )
+
+    // call api
+
+    toast.success("Drop created successfully", {
+      action: {
+        label: "View Deposit Transaction",
+        onClick: () => {
+          window.open(`https://solscan.io/tx/${depositSig}`, "_blank")
+        },
+      },
+    })
+
     setIsCreatingDrop(false)
   })
+
+  const size = form.watch("dropSize", 0)
+
+  useEffect(() => {
+    async function calculateCost() {
+      const depth = calculateClosestTreeDepth(size)
+
+      const requiredSpace = getConcurrentMerkleTreeAccountSize(
+        depth.sizePair.maxDepth,
+        depth.sizePair.maxBufferSize,
+        depth.canopyDepth
+      )
+
+      const estimatedCostForTree =
+        (await mainConnection.getMinimumBalanceForRentExemption(
+          requiredSpace
+        )) / LAMPORTS_PER_SOL
+
+      const txCost = size * 0.000005
+
+      const totalWithoutPadding = estimatedCostForTree + txCost
+      const padding = totalWithoutPadding * 0.05
+      const total = totalWithoutPadding + padding
+
+      setEstimatedCost(total)
+    }
+
+    calculateCost()
+  }, [size])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -251,8 +346,18 @@ const CreateDropDialog = () => {
               )}
             />
 
-            <DialogFooter className="mt-6">
-              <Button isLoading={isCreatingDrop} type="submit">
+            <DialogFooter className="items-center gap-6 mt-6 text-center sm:flex-col-reverse">
+              <p className="w-64 text-xs text-gray-400">
+                It will cost ~{estimatedCost.toFixed(4)} SOL to create this
+                drop. This includes the cost of the NFTs and the transaction
+                fees.
+              </p>
+
+              <Button
+                isLoading={isCreatingDrop}
+                type="submit"
+                className="w-fit"
+              >
                 Create Drop
               </Button>
             </DialogFooter>
