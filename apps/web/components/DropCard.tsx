@@ -1,37 +1,58 @@
 "use client"
 
-import { ClipboardCopyIcon, CopyIcon, ExternalLinkIcon } from "lucide-react"
+import { RefObject, useEffect, useRef } from "react"
+import { createQR } from "@/utils/qr"
+import { TabsContent } from "@radix-ui/react-tabs"
+import html2canvas from "html2canvas"
+import {
+  ClipboardCopyIcon,
+  CopyIcon,
+  ExternalLinkIcon,
+  QrCodeIcon,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 
+import { QRCode } from "./QRCode"
 import { Badge } from "./ui/badge"
 import { Button, buttonVariants } from "./ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog"
 import { Switch } from "./ui/switch"
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 
 interface DropCardProps {
   drop: any
 }
 
 const DropCard = ({ drop }: DropCardProps) => {
-  return (
-    <div className="rounded-xl p-4 bg-secondary border-1px border-secondary w-2/3">
-      <div className="flex flex-col md:flex-row gap-6">
-        <img src={drop.imageUri} alt={drop.name} className="rounded-xl" />
-        <div className="flex flex-col gap-6 justify-between w-full">
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between w-full items-center">
-              <h3 className="font-bold text-2xl">{drop.name}</h3>
+  const linkQRRef = useRef<HTMLDivElement>(null)
+  const solanaPayQRRef = useRef<HTMLDivElement>(null)
 
-              <p className="text-gray-500 text-xs md:text-sm">
+  return (
+    <div className="w-2/3 p-4 rounded-xl bg-secondary border-1px border-secondary">
+      <div className="flex flex-col gap-6 md:flex-row">
+        <img src={drop.imageUri} alt={drop.name} className="rounded-xl" />
+        <div className="flex flex-col justify-between w-full gap-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between w-full">
+              <h3 className="text-2xl font-bold">{drop.name}</h3>
+
+              <p className="text-xs text-gray-500 md:text-sm">
                 {drop.minted} of {drop.size} minted
               </p>
             </div>
-            <p className="text-gray-400 text-sm">{drop.description}</p>
+            <p className="text-sm text-gray-400">{drop.description}</p>
           </div>
 
-          <div className="flex gap-6 md:justify-between flex-col md:flex-row">
-            <div className="flex gap-2 items-center">
+          <div className="flex flex-col gap-6 md:justify-between md:flex-row">
+            <div className="flex items-center gap-2">
               {drop.active ? (
                 <Badge variant="green">Active</Badge>
               ) : (
@@ -52,7 +73,43 @@ const DropCard = ({ drop }: DropCardProps) => {
               />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex flex-col items-center gap-4 md:flex-row">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="secondary">
+                    <QrCodeIcon className="w-4 h-4 mr-2" />
+                    <span>QR Code</span>
+                  </Button>
+                </DialogTrigger>
+
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Drop QR Code</DialogTitle>
+                  </DialogHeader>
+
+                  <Tabs defaultValue="link" className="w-full">
+                    <TabsList className="w-full my-4">
+                      <TabsTrigger value="link">Link</TabsTrigger>
+                      <TabsTrigger value="solana-pay">Solana Pay</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="link">
+                      <QRCode
+                        content={`${window.location.origin}/drops/${drop.id}`}
+                        ref={linkQRRef}
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="solana-pay">
+                      <QRCode
+                        content={`${process.env.NEXT_PUBLIC_BACKEND_URL}/drops/solana-pay/${drop.id}`}
+                        ref={solanaPayQRRef}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </DialogContent>
+              </Dialog>
+
               <Button
                 variant="secondary"
                 onClick={() => {
