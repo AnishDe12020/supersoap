@@ -32,7 +32,7 @@ const ClaimPage = async ({ params }: ClaimPageProps) => {
   // get drop from api
 
   return (
-    <div className="flex flex-col items-center w-full mt-8">
+    <div className="relative flex flex-col items-center w-full mt-8 isolate">
       <div className="p-4 bg-secondary rounded-xl max-w-300 max-h-300">
         <img src={drop.imageUri} />
       </div>

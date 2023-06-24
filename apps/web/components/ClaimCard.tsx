@@ -24,7 +24,7 @@ enum Status {
 const ClaimCard = ({ id }: ClaimCardProps) => {
   const { publicKey } = useWallet()
 
-  const [status, setStatus] = useState<Status>(Status.CLAIMED_WALLET)
+  const [status, setStatus] = useState<Status>(Status.IDLE)
   const [claimSignature, setClaimSignature] = useState<string>("")
 
   const isMobile = useMemo(() => {
