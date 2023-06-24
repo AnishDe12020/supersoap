@@ -36,7 +36,7 @@ const DropCard = ({ drop }: DropCardProps) => {
   const solanaPayQRRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div className="w-2/3 p-4 rounded-xl bg-secondary border-1px border-secondary">
+    <div className="w-2/3 p-4 rounded-xl bg-card border-1px border-secondary">
       <div className="flex flex-col gap-6 md:flex-row">
         <img src={drop.imageUri} alt={drop.name} className="rounded-xl" />
         <div className="flex flex-col justify-between w-full gap-6">

@@ -45,7 +45,7 @@ const ClaimCard = ({ id }: ClaimCardProps) => {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 mt-8 bg-secondary rounded-xl">
+    <div className="flex flex-col gap-4 p-4 mt-8 bg-card rounded-xl">
       {status === Status.IDLE && (
         <>
           {publicKey ? (

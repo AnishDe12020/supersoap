@@ -2,11 +2,10 @@
 
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { isWalletAdapterCompatibleStandardWallet } from "@solana/wallet-adapter-base"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useSession } from "next-auth/react"
 import Dropzone, { FileRejection } from "react-dropzone"
-import { set, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
