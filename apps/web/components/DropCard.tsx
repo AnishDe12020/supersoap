@@ -94,13 +94,23 @@ const DropCard = ({ drop }: DropCardProps) => {
                     </TabsList>
 
                     <TabsContent value="link">
+                      <p className="mb-4 text-sm text-gray-300">
+                        A link anyone can visit and connect their wallet or
+                        claim the NFT with 1 click using Solana Pay if on mobile
+                      </p>
+
                       <QRCode
-                        content={`${window.location.origin}/drops/${drop.id}`}
+                        content={`${window.location.origin}/drops/claim/${drop.id}`}
                         ref={linkQRRef}
                       />
                     </TabsContent>
 
                     <TabsContent value="solana-pay">
+                      <p className="mb-4 text-sm text-gray-300">
+                        A QR code that can directly be scanned with a Solana Pay
+                        enabled wallet to claim the NFT
+                      </p>
+
                       <QRCode
                         content={`${process.env.NEXT_PUBLIC_BACKEND_URL}/drops/solana-pay/${drop.id}`}
                         ref={solanaPayQRRef}
@@ -114,7 +124,7 @@ const DropCard = ({ drop }: DropCardProps) => {
                 variant="secondary"
                 onClick={() => {
                   navigator.clipboard.writeText(
-                    `${window.location.origin}/drops/${drop.id}`
+                    `${window.location.origin}/drops/claim/${drop.id}`
                   )
                   toast.success("Copied to clipboard")
                 }}
@@ -129,7 +139,7 @@ const DropCard = ({ drop }: DropCardProps) => {
                   buttonVariants({ variant: "default" }),
                   "w-full md:w-fit"
                 )}
-                href={`${window.location.origin}/drops/${drop.id}`}
+                href={`${window.location.origin}/drops/claim/${drop.id}`}
                 target="_blank"
                 rel="noreferrer"
               >

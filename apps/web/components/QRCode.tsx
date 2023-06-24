@@ -3,7 +3,7 @@
 import { forwardRef, HTMLAttributes, useEffect, useRef } from "react"
 import { createQR } from "@/utils/qr"
 import html2canvas from "html2canvas"
-import { CopyIcon } from "lucide-react"
+import { CopyIcon, DownloadIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "./ui/button"
@@ -76,7 +76,7 @@ const QRCode = forwardRef<HTMLDivElement, QRCodeProps>(
 
         <div className="flex items-center justify-center gap-4 mt-4">
           <Button onClick={handleDownloadQR}>
-            <CopyIcon className="w-4 h-4 mr-2" />
+            <DownloadIcon className="w-4 h-4 mr-2" />
             <span>Download QR Code</span>
           </Button>
 
