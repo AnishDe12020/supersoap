@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { isWalletAdapterCompatibleStandardWallet } from "@solana/wallet-adapter-base"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useSession } from "next-auth/react"
 import Dropzone, { FileRejection } from "react-dropzone"
@@ -9,6 +10,7 @@ import { set, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import AttributesInput from "./AttributesInput"
 import { Button } from "./ui/button"
 import {
   Dialog,
@@ -47,6 +49,7 @@ export const createDropFormSchema = z.object({
     .optional(),
   network: z.enum(["devnet"]),
   image: z.instanceof(File),
+  attributes: z.any(),
 })
 
 const MAX_FILE_SIZE = 5_24_49_280
@@ -169,6 +172,8 @@ const CreateDropDialog = () => {
               )}
             />
 
+            <AttributesInput control={form.control} name="attributes" />
+
             <FormField
               control={form.control}
               name="network"
@@ -248,7 +253,7 @@ const CreateDropDialog = () => {
             />
 
             <DialogFooter className="mt-6">
-              <Button type="submit" isLoading={isCreatingDrop}>
+              <Button isLoading={isCreatingDrop} type="submit">
                 Create Drop
               </Button>
             </DialogFooter>
