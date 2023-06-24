@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
-import { WalletIcon } from "lucide-react"
+import { CheckCircle2Icon, WalletIcon } from "lucide-react"
+import Lottie from "react-lottie-player"
 import { toast } from "sonner"
 
+import successAnimation from "../public/success.json"
 import { ConnectWallet } from "./ConnectWallet"
 import { Icons } from "./icons"
 import { Button } from "./ui/button"
@@ -22,7 +24,7 @@ enum Status {
 const ClaimCard = ({ id }: ClaimCardProps) => {
   const { publicKey } = useWallet()
 
-  const [status, setStatus] = useState<Status>(Status.IDLE)
+  const [status, setStatus] = useState<Status>(Status.CLAIMED_WALLET)
   const [claimSignature, setClaimSignature] = useState<string>("")
 
   const isMobile = useMemo(() => {
@@ -45,7 +47,7 @@ const ClaimCard = ({ id }: ClaimCardProps) => {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 mt-8 bg-card rounded-xl">
+    <div className="flex flex-col gap-4 mt-8">
       {status === Status.IDLE && (
         <>
           {publicKey ? (
@@ -67,6 +69,36 @@ const ClaimCard = ({ id }: ClaimCardProps) => {
             </Button>
           )}
         </>
+      )}
+
+      {status === Status.CLAIMING && (
+        <div className="flex flex-col items-center justify-center gap-6 mt-4 text-center">
+          <Icons.spinner className="w-4 h-4 mr-2 animate-spin" />
+          <span>Claiming...</span>
+        </div>
+      )}
+
+      {status === Status.CLAIMED_WALLET && (
+        <div className="flex flex-col items-center justify-center gap-6 mt-4 text-center">
+          <Lottie
+            animationData={successAnimation}
+            play
+            loop={false}
+            style={{
+              width: 100,
+              height: 100,
+            }}
+          />
+
+          <Button
+            onClick={() => {
+              window.open(`https://solscan.io/tx/${claimSignature}`, "_blank")
+            }}
+            className="bg-green-700 hover:bg-green-800"
+          >
+            View Transaction
+          </Button>
+        </div>
       )}
     </div>
   )
