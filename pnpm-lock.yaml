@@ -168,6 +168,9 @@ importers:
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.0.2
         version: 4.0.2(prettier@2.8.8)
+      '@types/cookie':
+        specifier: ^0.5.1
+        version: 0.5.1
       '@types/node':
         specifier: ^20.3.1
         version: 20.3.1
@@ -183,6 +186,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.14
         version: 10.4.14(postcss@8.4.24)
+      cookie:
+        specifier: ^0.5.0
+        version: 0.5.0
       eslint:
         specifier: ^8.43.0
         version: 8.43.0
@@ -5154,6 +5160,10 @@ packages:
       '@types/node': 20.3.1
     dev: false
 
+  /@types/cookie@0.5.1:
+    resolution: {integrity: sha512-COUnqfB2+ckwXXSFInsFdOAWQzCCx+a5hq2ruyj+Vjund94RJQd4LG2u9hnvJrTgunKAaax7ancBYlDrNYxA0g==}
+    dev: true
+
   /@types/debug@4.1.8:
     resolution: {integrity: sha512-/vPO1EPOs306Cvhwv7KfVfYvOJqA/S/AXjaHQiJboCZzcNDb+TIJFN9/2C9DZ//ijSKWioNyUxD792QmDJ+HKQ==}
     dependencies:
@@ -6926,7 +6936,6 @@ packages:
   /cookie@0.5.0:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
     engines: {node: '>= 0.6'}
-    dev: false
 
   /copy-anything@3.0.5:
     resolution: {integrity: sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==}

@@ -266,6 +266,7 @@ const CreateDropDialog = () => {
               )}
             />
 
+            {/* @ts-ignore */}
             <AttributesInput control={form.control} name="attributes" />
 
             <FormField
