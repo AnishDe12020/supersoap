@@ -52,10 +52,7 @@ export const createDropFormSchema = z.object({
   dropName: z.string(),
   dropDescription: z.string().optional(),
   dropSize: z.number().min(1),
-  externalUrl: z
-    .string()
-    .regex(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)
-    .optional(),
+  externalUrl: z.string().optional(),
   network: z.enum(["devnet"]),
   image: z.instanceof(File),
   attributes: z.any(),
@@ -113,7 +110,7 @@ const CreateDropDialog = () => {
       LAMPORTS_PER_SOL
     const txCost = data.dropSize * 0.000005
     const totalWithoutPadding = estimatedCostForTree + txCost
-    const padding = totalWithoutPadding * 0.1
+    const padding = totalWithoutPadding * 0.5
     const totalCost = totalWithoutPadding + padding
 
     const transferIx = SystemProgram.transfer({
@@ -192,7 +189,7 @@ const CreateDropDialog = () => {
       const txCost = size * 0.000005
 
       const totalWithoutPadding = estimatedCostForTree + txCost
-      const padding = totalWithoutPadding * 0.1
+      const padding = totalWithoutPadding * 0.5
       const total = totalWithoutPadding + padding
 
       setEstimatedCost(total)

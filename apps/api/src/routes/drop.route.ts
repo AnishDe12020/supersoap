@@ -20,6 +20,7 @@ import { uploadMutlerFile, uploadObject } from "utils/uploadImage";
 import { CreateMetadataAccountArgsV3 } from "@metaplex-foundation/mpl-token-metadata";
 import { getConcurrentMerkleTreeAccountSize } from "@solana/spl-account-compression";
 import prismaClient from "config/prisma";
+import logger from "middlewares/logger";
 
 const dropRouter = Router();
 const mutlerUpload = multer({
@@ -139,116 +140,122 @@ dropRouter.post(
 
     console.log(depth);
 
-    const metadata = {
-      name: name,
-      symbol: "SOAP",
-      description: description,
-      image: imageUri,
-      external_url: external_url,
-      attributes: attributes,
-    };
-
-    const { cid: metadataCid, gatewayUri: metadataUri } = await uploadObject(
-      metadata
-    );
-
-    const collectionMetadata: CreateMetadataAccountArgsV3 = {
-      data: {
-        name,
-        symbol: "SOAP",
-        uri: metadataUri,
-        sellerFeeBasisPoints: 0,
-        creators: null,
-        collection: null,
-        uses: null,
-      },
-      isMutable: false,
-      collectionDetails: null,
-    };
-
-    const {
-      treeAddress,
-      treeAuthority,
-      treeKeypair,
-      tx: createTreeTx,
-    } = await getCreateTreeTx(
-      connection,
-      depth.sizePair,
-      depth.canopyDepth,
-      keypair.publicKey
-    );
-
-    console.log("treeAddress", treeAddress.toBase58());
-    console.log("treeAuthority", treeAuthority.toBase58());
-    console.log("treeKeypair", treeKeypair.secretKey);
-
-    const createTreeSig = await sendAndConfirmTransaction(
-      connection,
-      createTreeTx,
-      [keypair, treeKeypair]
-    );
-
-    console.log("createTreeSig", createTreeSig);
-
-    const {
-      masterEditionAccount,
-      metadataAccount,
-      mint,
-      mintKeypair,
-      tokenAccount,
-      tx: createCollectionTx,
-    } = await getCreateCollectionTx(
-      connection,
-      keypair.publicKey,
-      collectionMetadata,
-      size,
-      keypair.publicKey
-    );
-
-    console.log("masterEditionAccount", masterEditionAccount.toBase58());
-    console.log("metadataAccount", metadataAccount.toBase58());
-    console.log("mint", mint.toBase58());
-    console.log("mintKeypair", mintKeypair.secretKey);
-    console.log("tokenAccount", tokenAccount.toBase58());
-
-    const createCollectionSig = await sendAndConfirmTransaction(
-      connection,
-      createCollectionTx,
-      [keypair, mintKeypair]
-    );
-
-    console.log("createCollectionSig", createCollectionSig);
-
-    const drop = await prismaClient.drop.create({
-      data: {
-        collectionMetadataUri: metadataUri,
-        imageUri: imageUri,
-        masterEditionAccount: masterEditionAccount.toBase58(),
-        metadataAccount: metadataAccount.toBase58(),
-        mint: mint.toBase58(),
-        minted: 0,
+    try {
+      const metadata = {
         name: name,
-        network: network,
-        attributes: attributes,
-        size: size,
-        treeAddress: treeAddress.toBase58(),
-        active: true,
+        symbol: "SOAP",
         description: description,
-        externalUrl: external_url,
-        owner: {
-          connect: {
-            address: "8Dyk53RrtmN3MshQxxWdfTRco9sQJzUHSqkUg8chbe88", // hardcoded this, must be derived from the address in jwt body
+        image: imageUri,
+        external_url: external_url,
+      };
+
+      const { cid: metadataCid, gatewayUri: metadataUri } = await uploadObject(
+        metadata
+      );
+
+      const collectionMetadata: CreateMetadataAccountArgsV3 = {
+        data: {
+          name,
+          symbol: "SOAP",
+          uri: metadataUri,
+          sellerFeeBasisPoints: 0,
+          creators: null,
+          collection: null,
+          uses: null,
+        },
+        isMutable: false,
+        collectionDetails: null,
+      };
+
+      const {
+        treeAddress,
+        treeAuthority,
+        treeKeypair,
+        tx: createTreeTx,
+      } = await getCreateTreeTx(
+        connection,
+        depth.sizePair,
+        depth.canopyDepth,
+        keypair.publicKey
+      );
+
+      console.log("treeAddress", treeAddress.toBase58());
+      console.log("treeAuthority", treeAuthority.toBase58());
+      console.log("treeKeypair", treeKeypair.secretKey);
+
+      const createTreeSig = await sendAndConfirmTransaction(
+        connection,
+        createTreeTx,
+        [keypair, treeKeypair]
+      );
+
+      console.log("createTreeSig", createTreeSig);
+
+      const {
+        masterEditionAccount,
+        metadataAccount,
+        mint,
+        mintKeypair,
+        tokenAccount,
+        tx: createCollectionTx,
+      } = await getCreateCollectionTx(
+        connection,
+        keypair.publicKey,
+        collectionMetadata,
+        size,
+        keypair.publicKey
+      );
+
+      console.log("masterEditionAccount", masterEditionAccount.toBase58());
+      console.log("metadataAccount", metadataAccount.toBase58());
+      console.log("mint", mint.toBase58());
+      console.log("mintKeypair", mintKeypair.secretKey);
+      console.log("tokenAccount", tokenAccount.toBase58());
+
+      const createCollectionSig = await sendAndConfirmTransaction(
+        connection,
+        createCollectionTx,
+        [keypair, mintKeypair]
+      );
+
+      console.log("createCollectionSig", createCollectionSig);
+
+      const drop = await prismaClient.drop.create({
+        data: {
+          collectionMetadataUri: metadataUri,
+          imageUri: imageUri,
+          masterEditionAccount: masterEditionAccount.toBase58(),
+          metadataAccount: metadataAccount.toBase58(),
+          mint: mint.toBase58(),
+          minted: 0,
+          name: name,
+          network: network === "mainnet-beta" ? "MAINNET" : "DEVNET",
+          attributes: {
+            set: JSON.parse(attributes),
+          },
+          size: Number(size),
+          treeAddress: treeAddress.toBase58(),
+          active: true,
+          description: description,
+          externalUrl: external_url,
+          owner: {
+            connect: {
+              address: "8Dyk53RrtmN3MshQxxWdfTRco9sQJzUHSqkUg8chbe88", // hardcoded this, must be derived from the address in jwt body
+            },
           },
         },
-      },
-    });
+      });
 
-    res.json({
-      message: "drop created",
-      id: drop.id,
-      createTreeSig,
-      createCollectionSig,
-    });
+      res.json({
+        message: "drop created",
+        id: drop.id,
+        createTreeSig,
+        createCollectionSig,
+      });
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ message: "something went wrong" });
+    }
   }
 );
 
