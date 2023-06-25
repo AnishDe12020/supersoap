@@ -60,10 +60,9 @@ model Claim {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  claimerAddress   String
-  claimTx          String?
-  claimed          Boolean @default(false)
-  claimTxReference String? // For Solana pay transactions
+  claimerAddress String
+  claimTx        String? // only available in case of non-solana pay claims
+  claimed        Boolean @default(false)
 
   drop   Drop   @relation(fields: [dropId], references: [id])
   dropId String @db.ObjectId

@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { encodeURL } from "@solana/pay"
 import { useWallet } from "@solana/wallet-adapter-react"
 import axios from "axios"
 import { Network } from "database"
@@ -80,7 +81,20 @@ const ClaimCard = ({ id, active, network }: ClaimCardProps) => {
           )}
 
           {isMobile && (
-            <Button className="flex items-center text-white bg-black hover:bg-slate-800">
+            <Button
+              className="flex items-center text-white bg-black hover:bg-slate-800"
+              onClick={() => {
+                const link = encodeURL({
+                  link: new URL(
+                    `${process.env.NEXT_PUBLIC_BACKEND_URL}/drops/${id}/solana-pay`
+                  ),
+                })
+
+                console.log(link)
+
+                window.open(link)
+              }}
+            >
               <span>Claim using </span>
               <Icons.solanapay className="w-10 h-6 ml-2" />
             </Button>

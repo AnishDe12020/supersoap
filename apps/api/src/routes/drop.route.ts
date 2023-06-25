@@ -5,8 +5,12 @@ import multer from "multer";
 import {
   createDropHandler,
   patchDropHandler,
+  solanaPayHandler,
 } from "@controllers/drop.controller";
-import { mintHandler } from "@controllers/mint.controller";
+import {
+  mintHandler,
+  solanaPayMintHandler,
+} from "@controllers/mint.controller";
 
 const dropRouter = Router();
 const mutlerUpload = multer({
@@ -23,5 +27,9 @@ dropRouter.post(
 dropRouter.patch("/:id", authHandler, patchDropHandler);
 
 dropRouter.post("/:id/mint", mintHandler);
+
+dropRouter.get("/:id/solana-pay", solanaPayHandler);
+
+dropRouter.post("/:id/solana-pay", solanaPayMintHandler);
 
 export default dropRouter;

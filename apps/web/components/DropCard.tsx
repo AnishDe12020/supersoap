@@ -136,7 +136,7 @@ const DropCard = ({ drop }: DropCardProps) => {
                       <QRCode
                         content={encodeURL({
                           link: new URL(
-                            `${process.env.NEXT_PUBLIC_BACKEND_URL}/drops/solana-pay/${drop.id}`
+                            `${process.env.NEXT_PUBLIC_BACKEND_URL}/drops/${drop.id}/solana-pay/`
                           ),
                         })}
                         ref={solanaPayQRRef}

@@ -275,3 +275,22 @@ export const patchDropHandler = async (req: Request, res: Response) => {
     res.status(500).json({ message: "something went wrong" });
   }
 };
+
+export const solanaPayHandler = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const drop = await prismaClient.drop.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!drop) {
+    return res.status(404).json({ message: "drop not found" });
+  }
+
+  return res.json({
+    label: drop.name,
+    icon: drop.imageUri,
+  });
+};
