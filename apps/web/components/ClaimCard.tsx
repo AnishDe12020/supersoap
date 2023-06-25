@@ -2,7 +2,9 @@
 
 import { useMemo, useState } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
-import { CheckCircle2Icon, WalletIcon } from "lucide-react"
+import axios from "axios"
+import { Network } from "database"
+import { WalletIcon } from "lucide-react"
 import Lottie from "react-lottie-player"
 import { toast } from "sonner"
 
@@ -13,6 +15,8 @@ import { Button } from "./ui/button"
 
 interface ClaimCardProps {
   id: string
+  active: boolean
+  network: Network
 }
 
 enum Status {
@@ -21,13 +25,17 @@ enum Status {
   CLAIMED_WALLET,
 }
 
-const ClaimCard = ({ id }: ClaimCardProps) => {
+const ClaimCard = ({ id, active, network }: ClaimCardProps) => {
   const { publicKey } = useWallet()
 
   const [status, setStatus] = useState<Status>(Status.IDLE)
   const [claimSignature, setClaimSignature] = useState<string>("")
 
   const isMobile = useMemo(() => {
+    if (!navigator) {
+      return false
+    }
+
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
     )
@@ -41,12 +49,21 @@ const ClaimCard = ({ id }: ClaimCardProps) => {
       return
     }
 
-    // call api to claim
+    const {
+      data: { txSignature },
+    } = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/drops/${id}/mint`,
+      {
+        claimerAddress: publicKey.toBase58(),
+      }
+    )
+
+    setClaimSignature(txSignature)
 
     setStatus(Status.CLAIMED_WALLET)
   }
 
-  return (
+  return active ? (
     <div className="flex flex-col gap-4 mt-8">
       {status === Status.IDLE && (
         <>
@@ -92,7 +109,12 @@ const ClaimCard = ({ id }: ClaimCardProps) => {
 
           <Button
             onClick={() => {
-              window.open(`https://solscan.io/tx/${claimSignature}`, "_blank")
+              window.open(
+                `https://solscan.io/tx/${claimSignature}?cluster=${
+                  network === "MAINNET" ? "mainnet-beta" : "devnet"
+                }`,
+                "_blank"
+              )
             }}
             className="bg-green-700 hover:bg-green-800"
           >
@@ -100,6 +122,12 @@ const ClaimCard = ({ id }: ClaimCardProps) => {
           </Button>
         </div>
       )}
+    </div>
+  ) : (
+    <div className="flex flex-col gap-4 mt-8">
+      <p>
+        This drop is not active. Please check back later or contact the creator
+      </p>
     </div>
   )
 }

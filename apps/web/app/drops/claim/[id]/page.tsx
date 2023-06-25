@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/db"
 import ClaimCard from "@/components/ClaimCard"
 
 interface ClaimPageProps {
@@ -6,35 +7,23 @@ interface ClaimPageProps {
   }
 }
 
-const drop = {
-  id: "abcd",
-  name: "Drop 1",
-  description: "Drop 1 description",
-  imageUri: "https://via.placeholder.com/150",
-  size: 10,
-  active: true,
-  minted: 5,
-  metadataUri: "https://arweave.net/123",
-  enabled: true,
-  attributes: [
-    {
-      trait_type: "Background",
-      value: "Red",
-    },
-    {
-      trait_type: "Eyes",
-      value: "Blue",
-    },
-  ],
-}
-
 const ClaimPage = async ({ params }: ClaimPageProps) => {
-  // get drop from api
+  const drop = await prisma.drop.findUnique({
+    where: {
+      id: params.id,
+    },
+  })
+
+  if (!drop) {
+    return {
+      notFound: true,
+    }
+  }
 
   return (
     <div className="relative flex flex-col items-center w-full mt-8 isolate">
       <div className="p-4 bg-secondary rounded-xl max-w-300 max-h-300">
-        <img src={drop.imageUri} />
+        <img src={drop.imageUri} height={200} width={200} />
       </div>
 
       <div className="flex flex-col items-center w-full mt-8">
@@ -54,7 +43,7 @@ const ClaimPage = async ({ params }: ClaimPageProps) => {
           ))}
         </div>
 
-        <ClaimCard id={drop.id} />
+        <ClaimCard id={drop.id} active={drop.active} network={drop.network} />
       </div>
     </div>
   )

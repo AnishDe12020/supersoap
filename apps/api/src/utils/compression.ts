@@ -282,9 +282,8 @@ export const getCreateCollectionTx = async (
   };
 };
 
-export const mintCompressedNFTServerMetaplex = async (
-  connection: Connection,
-  identity: Keypair,
+export const getMintTx = (
+  identityPublicKey: PublicKey,
   collectionMint: PublicKey,
   collectionMetadata: PublicKey,
   collectionMasterEditionAccount: PublicKey,
@@ -303,29 +302,15 @@ export const mintCompressedNFTServerMetaplex = async (
     BUBBLEGUM_PROGRAM_ID
   );
 
-  console.log("identityAddress", identity.publicKey.toBase58());
-  console.log("treeAuthority", treeAuthority.toBase58());
-  console.log("bubblegumSigner", bubblegumSigner.toBase58());
-  console.log("collectionMint", collectionMint.toBase58());
-  console.log("collectionMetadata", collectionMetadata.toBase58());
-  console.log(
-    "collectionMasterEditionAccount",
-    collectionMasterEditionAccount.toBase58()
-  );
-  console.log("tree", tree.toBase58());
-  console.log("name", name);
-  console.log("uri", uri);
-  console.log("receiverAddress", receiverAddress.toBase58());
-
   const mintIx = createMintToCollectionV1Instruction(
     {
-      payer: identity.publicKey,
+      payer: identityPublicKey,
       merkleTree: tree,
       treeAuthority,
-      treeDelegate: identity.publicKey,
+      treeDelegate: identityPublicKey,
       leafOwner: receiverAddress,
-      leafDelegate: identity.publicKey,
-      collectionAuthority: identity.publicKey,
+      leafDelegate: identityPublicKey,
+      collectionAuthority: identityPublicKey,
       collectionAuthorityRecordPda: BUBBLEGUM_PROGRAM_ID,
       collectionMint,
       collectionMetadata,
@@ -361,36 +346,5 @@ export const mintCompressedNFTServerMetaplex = async (
 
   tx.add(mintIx);
 
-  tx.feePayer = identity.publicKey;
-
-  const txSignature = await sendAndConfirmTransaction(
-    connection,
-    tx,
-    [identity],
-    {
-      commitment: "confirmed",
-      skipPreflight: true,
-    }
-  );
-
-  console.log("txSignature", txSignature);
-
-  return txSignature;
-
-  //   const metaplex = Metaplex.make(connection).use(keypairIdentity(identity));
-
-  //   const { response, nft } = await metaplex.nfts().create({
-  //     name,
-  //     uri,
-  //     sellerFeeBasisPoints: 0,
-  //     collection: collectionMint,
-  //     collectionAuthority: identity,
-  //     tree,
-  //     tokenOwner: receiverAddress,
-  //   });
-
-  //   return {
-  //     nft,
-  //     response,
-  //   };
+  return tx;
 };

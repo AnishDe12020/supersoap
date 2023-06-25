@@ -6,6 +6,7 @@ import {
   createDropHandler,
   patchDropHandler,
 } from "@controllers/drop.controller";
+import { mintHandler } from "@controllers/mint.controller";
 
 const dropRouter = Router();
 const mutlerUpload = multer({
@@ -20,5 +21,7 @@ dropRouter.post(
 );
 
 dropRouter.patch("/:id", authHandler, patchDropHandler);
+
+dropRouter.post("/:id/mint", mintHandler);
 
 export default dropRouter;
