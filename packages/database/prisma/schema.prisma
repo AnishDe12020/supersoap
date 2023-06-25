@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Network {
+  MAINNET
+  DEVNET
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  address String @unique
+
+  Drop Drop[]
+}
+
+model Drop {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  collectionMetadataUri String
+  imageUri              String
+  name                  String
+  description           String?
+  externalUrl           String?
+  attributes            Attribute[]
+  size                  Int
+  minted                Int
+  treeAddress           String
+  masterEditionAccount  String
+  metadataAccount       String
+  mint                  String
+  network               Network
+  active                Boolean     @default(true)
+
+  owner   User    @relation(fields: [ownerId], references: [id])
+  ownerId String  @db.ObjectId
+  Claim   Claim[]
+}
+
+type Attribute {
+  trait_type String
+  value      String
+}
+
+model Claim {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  claimerAddress   String
+  claimTx          String?
+  claimed          Boolean @default(false)
+  claimTxReference String? // For Solana pay transactions
+
+  drop   Drop   @relation(fields: [dropId], references: [id])
+  dropId String @db.ObjectId
+}
