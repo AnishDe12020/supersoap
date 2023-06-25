@@ -1,9 +1,8 @@
 import { Router } from "express";
 import { handleAuth } from "@controllers/auth.controller";
-import { authHandler } from "middlewares/authHandler";
 
 const authRouter = Router();
 
-authRouter.post("/", authHandler, handleAuth);
+authRouter.post("/", handleAuth);
 
 export default authRouter;

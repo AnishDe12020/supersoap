@@ -1,5 +1,6 @@
 import { IncomingMessage } from "http"
 import { NextApiRequest, NextApiResponse } from "next"
+import axios from "axios"
 import bs58 from "bs58"
 import NextAuth, { AuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -42,6 +43,10 @@ export const authOptions = (
           const user = { name: credentials.publicKey }
 
           // api route to check if user exists or create new user
+
+          await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth`, {
+            address: credentials.publicKey,
+          })
 
           return user
         },

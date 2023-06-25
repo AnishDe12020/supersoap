@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { validatePubKey } from "utils/validatePubKey";
 
 export const handleAuth = async (req: Request, res: Response) => {
-  const address = req.user;
+  const { address } = req.body;
 
   if (!address) {
     return res.status(400).json({ error: "address is required" });
