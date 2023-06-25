@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { calculateClosestTreeDepth } from "@/utils/compression"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { getConcurrentMerkleTreeAccountSize } from "@solana/spl-account-compression"
@@ -64,13 +65,13 @@ const CreateDropDialog = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [estimatedCost, setEstimatedCost] = useState(0)
 
-  const { data: user } = useSession()
-
-  const { publicKey } = useWallet()
+  const [_isPending, startTransition] = useTransition()
 
   const { connection: mainConnection } = useConnection()
 
   const wallet = useWallet()
+
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof createDropFormSchema>>({
     resolver: zodResolver(createDropFormSchema),
@@ -155,16 +156,13 @@ const CreateDropDialog = () => {
       }
     )
 
+    startTransition(() => {
+      router.refresh()
+    })
+
     console.log(resData)
 
-    toast.success("Drop created successfully", {
-      // action: {
-      //   label: "View Deposit Transaction",
-      //   onClick: () => {
-      //     window.open(`https://solscan.io/tx/${depositSig}`, "_blank")
-      //   },
-      // },
-    })
+    toast.success("Drop created successfully")
 
     setIsCreatingDrop(false)
   })

@@ -1,14 +1,12 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { TabsContent } from "@radix-ui/react-tabs"
 import { encodeURL } from "@solana/pay"
-import {
-  ClipboardCopyIcon,
-  CopyIcon,
-  ExternalLinkIcon,
-  QrCodeIcon,
-} from "lucide-react"
+import axios from "axios"
+import { Drop } from "database"
+import { CopyIcon, ExternalLinkIcon, QrCodeIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
@@ -27,17 +25,51 @@ import { Switch } from "./ui/switch"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 
 interface DropCardProps {
-  drop: any
+  drop: Drop
 }
 
 const DropCard = ({ drop }: DropCardProps) => {
   const linkQRRef = useRef<HTMLDivElement>(null)
   const solanaPayQRRef = useRef<HTMLDivElement>(null)
 
+  const [_isPending, startTransition] = useTransition()
+  const router = useRouter()
+
+  const handleToggleActive = () => {
+    toast.promise(
+      async () => {
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/drops/${drop.id}`,
+          {
+            active: !drop.active,
+          },
+          {
+            withCredentials: true,
+          }
+        )
+
+        startTransition(() => {
+          router.refresh()
+        })
+      },
+      {
+        loading: drop.active ? "Deactivating" : "Activating",
+        success: drop.active ? "Deactivated" : "Activated",
+        error: drop.active ? "Failed to deactivate" : "Failed to activate",
+      }
+    )
+  }
+
   return (
     <div className="w-2/3 p-4 rounded-xl bg-card border-1px border-secondary">
       <div className="flex flex-col gap-6 md:flex-row">
-        <img src={drop.imageUri} alt={drop.name} className="rounded-xl" />
+        <img
+          src={drop.imageUri}
+          alt={drop.name}
+          className="rounded-xl"
+          height={150}
+          width={150}
+        />
         <div className="flex flex-col justify-between w-full gap-6">
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between w-full">
@@ -58,17 +90,8 @@ const DropCard = ({ drop }: DropCardProps) => {
                 <Badge variant="red">Inactive</Badge>
               )}
               <Switch
-                checked={true}
-                onCheckedChange={() => {
-                  console.log("TODO: implement toggle")
-                  toast.promise(() => Promise.resolve(), {
-                    loading: drop.active ? "Deactivating" : "Activating",
-                    success: drop.active ? "Deactivated" : "Activated",
-                    error: drop.active
-                      ? "Failed to deactivate"
-                      : "Failed to activate",
-                  })
-                }}
+                checked={drop.active}
+                onCheckedChange={handleToggleActive}
               />
             </div>
 
