@@ -26,8 +26,16 @@ const mutlerUpload = multer({
   dest: "temp/",
 });
 
-dropRouter.get("/", (req, res) => {
-  res.json({ drops: "e" });
+dropRouter.get("/", authHandler, async (req, res) => {
+  const drops = await prismaClient.drop.findMany({
+    where: {
+      owner: {
+        address: req.user,
+      },
+    },
+  });
+
+  res.json({ drops });
 });
 
 // create a drop
@@ -229,7 +237,7 @@ dropRouter.post(
         externalUrl: external_url,
         owner: {
           connect: {
-            address: "8Dyk53RrtmN3MshQxxWdfTRco9sQJzUHSqkUg8chbe88",
+            address: "8Dyk53RrtmN3MshQxxWdfTRco9sQJzUHSqkUg8chbe88", // hardcoded this, must be derived from the address in jwt body
           },
         },
       },

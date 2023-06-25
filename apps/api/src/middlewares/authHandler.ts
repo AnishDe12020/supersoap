@@ -6,7 +6,7 @@ import config from "config";
 export const authHandler = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const token = req.cookies["next-auth.session-token"];
 
@@ -17,7 +17,6 @@ export const authHandler = (
   } else {
     verify(token, secret)
       .then((decoded) => {
-        logger.info(decoded?.name);
         req.user = decoded?.name!;
         next();
       })
