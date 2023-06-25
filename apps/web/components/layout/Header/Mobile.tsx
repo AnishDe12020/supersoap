@@ -26,7 +26,7 @@ export const MobileNav = () => {
           <span className="sr-only">Toggle Menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent size="xl" position="left" className="pr-0">
+      <SheetContent side="left" className="pr-0">
         <MobileLink
           href="/"
           className="flex items-center"
@@ -38,19 +38,11 @@ export const MobileNav = () => {
 
         <nav className="flex flex-col items-start mt-8 space-y-4">
           <MobileLink
-            href="/dashboard"
+            href="/drops"
             className="transition-colors hover:text-foreground/80"
             onOpenChange={setOpen}
           >
-            Dashboard
-          </MobileLink>
-
-          <MobileLink
-            href="/wallet"
-            className="transition-colors hover:text-foreground/80"
-            onOpenChange={setOpen}
-          >
-            Wallet
+            Drops
           </MobileLink>
         </nav>
       </SheetContent>

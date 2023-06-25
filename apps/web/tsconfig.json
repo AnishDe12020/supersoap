@@ -29,7 +29,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "scripts/getPrivateKey.js"
+    "scripts/getPrivateKey.ts"
   ],
   "exclude": ["node_modules"]
 }

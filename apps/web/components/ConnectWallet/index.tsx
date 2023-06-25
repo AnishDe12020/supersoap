@@ -39,7 +39,7 @@ export const ConnectWallet = forwardRef<HTMLButtonElement, ConnectWalletProps>(
   ({ onlyConnect, children, ...props }, ref) => {
     const { wallets, select, publicKey, disconnect, connect, signMessage } =
       useWallet()
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
 
     const [isSigningIn, setIsSigningIn] = useState(false)
 
