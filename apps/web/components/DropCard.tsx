@@ -1,9 +1,8 @@
 "use client"
 
-import { RefObject, useEffect, useRef } from "react"
-import { createQR } from "@/utils/qr"
+import { useRef } from "react"
 import { TabsContent } from "@radix-ui/react-tabs"
-import html2canvas from "html2canvas"
+import { encodeURL } from "@solana/pay"
 import {
   ClipboardCopyIcon,
   CopyIcon,
@@ -112,7 +111,11 @@ const DropCard = ({ drop }: DropCardProps) => {
                       </p>
 
                       <QRCode
-                        content={`${process.env.NEXT_PUBLIC_BACKEND_URL}/drops/solana-pay/${drop.id}`}
+                        content={encodeURL({
+                          link: new URL(
+                            `${process.env.NEXT_PUBLIC_BACKEND_URL}/drops/solana-pay/${drop.id}`
+                          ),
+                        })}
                         ref={solanaPayQRRef}
                       />
                     </TabsContent>

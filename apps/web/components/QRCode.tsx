@@ -8,12 +8,13 @@ import { toast } from "sonner"
 
 import { Button } from "./ui/button"
 
-export interface QRCodeProps extends HTMLAttributes<HTMLDivElement> {
-  content: string
+export interface QRCodeProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, "content"> {
+  content: string | URL
 }
 
 const QRCode = forwardRef<HTMLDivElement, QRCodeProps>(
-  ({ content }: { content: string }) => {
+  ({ content }: { content: string | URL }) => {
     const qrRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
