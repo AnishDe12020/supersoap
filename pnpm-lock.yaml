@@ -32,15 +32,33 @@ importers:
 
   apps/api:
     dependencies:
+      '@metaplex-foundation/mpl-bubblegum':
+        specifier: ^0.7.0
+        version: 0.7.0
+      '@metaplex-foundation/mpl-token-metadata':
+        specifier: ^2.12.0
+        version: 2.12.0
+      '@solana/spl-account-compression':
+        specifier: ^0.1.8
+        version: 0.1.8(@solana/web3.js@1.77.3)
+      '@solana/spl-token':
+        specifier: ^0.3.8
+        version: 0.3.8(@solana/web3.js@1.77.3)
       '@solana/web3.js':
         specifier: ^1.77.3
         version: 1.77.3
+      bs58:
+        specifier: ^5.0.0
+        version: 5.0.0
       cookie-parser:
         specifier: ^1.4.6
         version: 1.4.6
       cors:
         specifier: ^2.8.5
         version: 2.8.5
+      database:
+        specifier: workspace:*
+        version: link:../../packages/database
       express:
         specifier: ^4.18.2
         version: 4.18.2

@@ -12,6 +12,7 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js"
+import axios from "axios"
 import { useSession } from "next-auth/react"
 import Dropzone, { FileRejection } from "react-dropzone"
 import { useForm } from "react-hook-form"
@@ -112,7 +113,7 @@ const CreateDropDialog = () => {
       LAMPORTS_PER_SOL
     const txCost = data.dropSize * 0.000005
     const totalWithoutPadding = estimatedCostForTree + txCost
-    const padding = totalWithoutPadding * 0.05
+    const padding = totalWithoutPadding * 0.1
     const totalCost = totalWithoutPadding + padding
 
     const transferIx = SystemProgram.transfer({
@@ -136,15 +137,36 @@ const CreateDropDialog = () => {
       "processed"
     )
 
+    const formData = new FormData()
+
+    formData.append("name", data.dropName)
+    formData.append("description", data.dropDescription ?? "")
+    formData.append("external_url", data.externalUrl ?? "")
+    formData.append("image", data.image)
+    formData.append("attributes", JSON.stringify(data.attributes))
+    formData.append("network", data.network)
+    formData.append("size", data.dropSize.toString())
+    formData.append("depositSig", depositSig)
+
     // call api
 
+    const { data: resData } = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/drops`,
+      formData,
+      {
+        withCredentials: true,
+      }
+    )
+
+    console.log(resData)
+
     toast.success("Drop created successfully", {
-      action: {
-        label: "View Deposit Transaction",
-        onClick: () => {
-          window.open(`https://solscan.io/tx/${depositSig}`, "_blank")
-        },
-      },
+      // action: {
+      //   label: "View Deposit Transaction",
+      //   onClick: () => {
+      //     window.open(`https://solscan.io/tx/${depositSig}`, "_blank")
+      //   },
+      // },
     })
 
     setIsCreatingDrop(false)
@@ -170,7 +192,7 @@ const CreateDropDialog = () => {
       const txCost = size * 0.000005
 
       const totalWithoutPadding = estimatedCostForTree + txCost
-      const padding = totalWithoutPadding * 0.05
+      const padding = totalWithoutPadding * 0.1
       const total = totalWithoutPadding + padding
 
       setEstimatedCost(total)

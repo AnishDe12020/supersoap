@@ -2,9 +2,7 @@ import * as dotenv from "dotenv";
 import path from "path";
 import Joi from "joi";
 
-dotenv.config({
-  path: path.resolve(__dirname, "../../../../packages/database/.env"),
-});
+dotenv.config();
 
 const envSchema = Joi.object().keys({
   NODE_ENV: Joi.string().valid("production", "development", "test").required(),
@@ -14,6 +12,7 @@ const envSchema = Joi.object().keys({
   ACCESS_TOKEN_EXPIRE: Joi.string().required().default("20m"),
   MAINNET_RPC: Joi.string().required(),
   NFT_STORAGE_KEY: Joi.string().required(),
+  PRIVATE_KEY: Joi.string().required(),
 });
 
 const { value: validatedEnv, error } = envSchema
@@ -24,7 +23,7 @@ if (error) {
   throw new Error(
     `Environment variable validation error: \n${error.details
       .map((detail) => detail.message)
-      .join("\n")}`,
+      .join("\n")}`
   );
 }
 
@@ -42,6 +41,7 @@ const config = {
     },
   },
   nftStorage: validatedEnv.NFT_STORAGE_KEY,
+  privateKey: validatedEnv.PRIVATE_KEY,
 } as const;
 
 export default config;

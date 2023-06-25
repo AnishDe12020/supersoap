@@ -1,7 +1,7 @@
 import config from "config";
 import cors from "cors";
 import express, { Express } from "express";
-import { authRouter } from "@routes/index";
+import { authRouter, dropRouter } from "@routes/index";
 import { errorHandler } from "middlewares/errorHandler";
 import logger from "middlewares/logger";
 import cookieParser from "cookie-parser";
@@ -13,7 +13,7 @@ app.use(
     // origin is given a array if we want to have multiple origins later
     origin: String(config.cors.cors_origin).split("|"),
     credentials: true,
-  }),
+  })
 );
 
 app.use(express.json());
@@ -21,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
+app.use("/drops", dropRouter);
 // app.use("/store", );
 
 app.all("*", (req, res) => {
